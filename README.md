@@ -1,208 +1,71 @@
-# Football Ticket Booking Database Management System
+# ⚽ Football Ticket Booking System - Database Architecture
 
-A PostgreSQL database project designed to manage football match ticket bookings. The system stores user information, football match details, booking records, payment statuses, and ticket pricing while maintaining data integrity through relational database constraints.
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Database Design](https://img.shields.io/badge/Database_Design-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+ 
+Welcome to the **Football Ticket Booking System** database project! This repository contains the complete schema design, Entity-Relationship Diagram (ERD), and complex SQL queries required to manage real-world ticketing scenarios for a football platform.
 
----
+## 📖 Project Overview
 
-## 📌 Project Overview
-
-This project demonstrates the design and implementation of a relational database system for a football ticket booking platform.
-
-The database allows:
-
-- Managing football fans and ticket managers.
-- Managing football match information.
-- Booking match tickets.
-- Tracking payment status.
-- Maintaining data consistency using Primary Keys, Foreign Keys, Constraints, and Joins.
+This project is built to seamlessly handle football fans purchasing tickets, manage upcoming tournament matches, and generate individual ticket booking receipts. It demonstrates a strong understanding of database relationships, referential integrity, and advanced data retrieval techniques.
 
 ---
 
-## 🗂 Database Schema
+## 🗄️ Database Schema Architecture
 
-### 👤 Users Table
+The system is built on a robust, normalized relational database architecture consisting of three core tables:
 
-Stores information about users of the ticket booking platform, including football fans and ticket managers.
+### 1️⃣ `Users` Table
+Manages the platform's user base, including both administrative staff and football fans.
+* **Key Fields**: `user_id` (PK), `full_name`, `email`, `role`, `phone_number`.
 
-| Column Name | Data Type | Constraints | Description |
-|------------|-----------|-------------|-------------|
-| `user_id` | SERIAL | Primary Key | Unique identifier for each user. |
-| `full_name` | VARCHAR(100) | | Full name of the user. |
-| `email` | VARCHAR(50) | UNIQUE | User's email address used for identification. |
-| `role` | VARCHAR(30) | CHECK | Defines whether the user is a **Football Fan** or **Ticket Manager**. |
-| `phone_number` | VARCHAR(20) | NULL Allowed | User's contact phone number. |
+### 2️⃣ `Matches` Table
+Catalogs all tournament events, team fixtures, base pricing, and ticket availability statuses.
+* **Key Fields**: `match_id` (PK), `fixture`, `tournament_category`, `base_ticket_price`, `match_status`.
 
----
-
-### ⚽ Matches Table
-
-Stores football match information and ticket pricing details.
-
-| Column Name | Data Type | Constraints | Description |
-|------------|-----------|-------------|-------------|
-| `match_id` | SERIAL | Primary Key | Unique identifier for each match. |
-| `fixture` | VARCHAR(100) |  | Names of the two teams participating in the match. |
-| `tournament_category` | VARCHAR(50) |  | Competition name (e.g., Champions League, Premier League). |
-| `base_ticket_price` | DECIMAL(10,2) | CHECK (> 0) | Starting ticket price for the match. |
-| `match_status` | VARCHAR(30) | CHECK | Current ticket availability status. |
-
-#### Allowed Match Status Values
-
-| Status | Meaning |
-|---------|---------|
-| Available | Tickets are available for purchase. |
-| Selling Fast | Limited tickets remain. |
-| Sold Out | No tickets are available. |
-| Postponed | Match has been rescheduled. |
+### 3️⃣ `Bookings` Table
+A transactional table recording every individual ticket purchase, establishing the vital link between a fan and a specific match.
+* **Key Fields**: `booking_id` (PK), `user_id` (FK), `match_id` (FK), `seat_number`, `payment_status`, `total_cost`.
 
 ---
 
-### 🎟️ Bookings Table
+## 🔗 Entity-Relationship Diagram (ERD)
 
-Stores ticket booking records made by users for specific football matches.
+The database utilizes `One-to-Many`, `Many-to-One`, and `One-to-One` (logical) relationships to enforce data integrity. 
 
-| Column Name | Data Type | Constraints | Description |
-|------------|-----------|-------------|-------------|
-| `booking_id` | SERIAL | Primary Key | Unique identifier for each booking. |
-| `user_id` | INT | Foreign Key | References the user who made the booking. |
-| `match_id` | INT | Foreign Key | References the booked football match. |
-| `seat_number` | VARCHAR(10) | UNIQUE | Reserved seat identifier. |
-| `payment_status` | VARCHAR(20) | CHECK | Current payment state of the booking. |
-| `total_cost` | DECIMAL(10,2) | CHECK (> 0) | Total amount paid for the booking. |
-
-#### Allowed Payment Status Values
-
-| Status | Meaning |
-|---------|---------|
-| Pending | Payment has not been completed. |
-| Confirmed | Payment has been successfully completed. |
-| Cancelled | Booking has been cancelled. |
-| Refunded | Payment has been refunded. |
+> 📊 **[View the Complete ERD Diagram Here](https://drawsql.app/teams/tt-/diagrams/sql)**
 
 ---
 
-## 🔗 Database Relationships
+## 🚀 Advanced SQL Queries Implemented
 
-| Parent Table | Child Table | Relationship | Description |
-|-------------|------------|-------------|-------------|
-| Users | Bookings | One-to-Many (1:N) | A user can create multiple bookings. |
-| Matches | Bookings | One-to-Many (1:N) | A match can have multiple ticket bookings. |
+All queries can be found within the `QUERY.sql` file. The project utilizes various intermediate to advanced SQL features, including:
 
-### Relationship Diagram
-
-[Click here to view ERD Diagram](https://drawsql.app/teams/tt-/diagrams/sql)
-
----
-
-## 🔒 Data Integrity Rules
-
-| Rule | Description |
-|--------|-------------|
-| Primary Keys | Ensure every record is uniquely identifiable. |
-| Foreign Keys | Maintain referential integrity between tables. |
-| Unique Constraints | Prevent duplicate emails and seat allocations. |
-| Check Constraints | Restrict invalid role, status, and price values. |
-| Cascade Delete | Automatically removes bookings if the related user or match is deleted. |
-
-## 📋 Assignment Queries
-
-### Query 1
-
-Retrieve all available Champions League matches.
-
-**Concepts Used:**
-- WHERE
-- Filtering
+- **Filtering & Pattern Matching**: Finding specific tournament matches or searching user names using `ILIKE` and `LIKE`.
+- **Handling Missing Data**: Utilizing `COALESCE` to elegantly manage `NULL` payment statuses.
+- **Complex Joins**: Employing `INNER JOIN` to fetch booking receipts with full user and match details, and `LEFT JOIN` to identify users with zero bookings.
+- **Aggregations & Subqueries**: Calculating the system's average booking cost and dynamically filtering transactions that exceed it.
+- **Sorting & Pagination**: Retrieving the most expensive matches using `ORDER BY`, `LIMIT`, and `OFFSET` strategies.
 
 ---
 
-### Query 2
+## 🛠️ Technical Concepts Demonstrated
 
-Search users whose names start with "Tanvir" or contain "Haque".
-
-**Concepts Used:**
-- ILIKE
-- Pattern Matching
-
----
-
-### Query 3
-
-Display bookings with missing payment status using a replacement value.
-
-**Concepts Used:**
-- COALESCE
-- NULL Handling
+* **Referential Integrity**: Robust use of Primary Keys (PK) and Foreign Keys (FK).
+* **Constraints**: Data validation through `UNIQUE`, `CHECK`, and `NOT NULL` constraints.
+* **Relational Logic**: Precise mapping of real-world scenarios into relational tables.
+* **Data Cleansing**: Graceful handling of empty records and null values.
 
 ---
 
-### Query 4
+## 🏃‍♂️ How to Run
 
-Retrieve booking details with user names and match fixtures.
-
-**Concepts Used:**
-- INNER JOIN
-- Multi-table Queries
-
----
-
-### Query 5
-
-Show all users including those without bookings.
-
-**Concepts Used:**
-- LEFT JOIN
+1. Make sure you have **PostgreSQL** installed.
+2. Create a new database in your SQL client (e.g., pgAdmin, DBeaver).
+3. Execute the table creation schemas.
+4. Insert the provided sample data.
+5. Run the queries from the `QUERY.sql` file to see the output!
 
 ---
-
-### Query 6
-
-Find bookings whose cost exceeds the average booking cost.
-
-**Concepts Used:**
-- Subquery
-- Aggregate Function
-
----
-
-### Query 7
-
-Retrieve the top 2 expensive matches while excluding the highest-priced match.
-
-**Concepts Used:**
-- MAX()
-- ORDER BY
-- LIMIT
-- Subquery
-
----
-
-## 🎯 SQL Concepts Demonstrated
-
-- Database Creation
-- Table Creation
-- Data Insertion
-- Primary Key
-- Foreign Key
-- Unique Constraint
-- Check Constraint
-- NULL Handling
-- Joins
-- Subqueries
-- Aggregate Functions
-- Filtering
-- Sorting
-- Data Integrity
-
----
-
-## 📚 Learning Outcomes
-
-Through this project, the following database concepts were practiced:
-
-- Relational Database Design
-- Entity Relationship Modeling
-- PostgreSQL Query Writing
-- Constraint Management
-- Data Retrieval Techniques
-- Query Optimization Basics
+*Crafted with ❤️ for modern database engineering.*
