@@ -90,7 +90,7 @@ Stores ticket booking records made by users for specific football matches.
 
 ### Relationship Diagram
 
-[Click here to view ERD Diagram](https://drawsql.app/teams/md-shahdat/diagrams/footabll-ticket-booking)
+[Click here to view ERD Diagram](https://drawsql.app/teams/tt-/diagrams/sql)
 
 ---
 
